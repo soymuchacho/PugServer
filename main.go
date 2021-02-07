@@ -1,8 +1,9 @@
 package main
 
 import (
-	"./service"
-	"./util"
+	"PugServer/common"
+	"PugServer/service"
+	"PugServer/util"
 	log "github.com/cihub/seelog"
 	"time"
 )
@@ -20,7 +21,7 @@ func InitLog() {
 }
 
 func InitConfig() {
-
+	common.LoadConfig()
 }
 
 func main() {

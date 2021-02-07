@@ -1,7 +1,7 @@
 package service
 
 import (
-	"../handler/user"
+	"PugServer/handler/user"
 	"github.com/gin-gonic/gin"
 )
 
