@@ -1,13 +1,23 @@
 package main
 
 import (
+<<<<<<< HEAD
 	"./service"
 	"./util"
+=======
+	"PugServer/common"
+	"PugServer/service"
+	"PugServer/util"
+>>>>>>> ef357e05a2d4ca9fc4ce18fb59ced7e8f0a71238
 	log "github.com/cihub/seelog"
 	"time"
 )
 
+<<<<<<< HEAD
 func initLog() {
+=======
+func InitLog() {
+>>>>>>> ef357e05a2d4ca9fc4ce18fb59ced7e8f0a71238
 	logger, err := log.LoggerFromConfigAsFile("conf/seelog.xml")
 	if err != nil {
 		panic(err)
@@ -19,10 +29,22 @@ func initLog() {
 	log.Debug("############################################################################")
 }
 
+<<<<<<< HEAD
 func main() {
 	defer log.Flush()
 
 	initLog()
+=======
+func InitConfig() {
+	common.LoadConfig()
+}
+
+func main() {
+	defer log.Flush()
+
+	InitLog()
+	InitConfig()
+>>>>>>> ef357e05a2d4ca9fc4ce18fb59ced7e8f0a71238
 
 	addr, err := util.Cfg.GetValue("", "ServerAddr")
 	if err != nil {
