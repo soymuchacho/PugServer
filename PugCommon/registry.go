@@ -1,10 +1,5 @@
 package PugCommon
 
-import (
-	"fmt"
-	"sync"
-)
-
 type Registry interface {
 	RegisterWithKeep() error
 	UnRegister() error

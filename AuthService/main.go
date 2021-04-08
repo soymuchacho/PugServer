@@ -2,6 +2,7 @@ package main
 
 import (
 	"AuthService/handle"
+	"AuthService/service"
 	"fmt"
 	ini "github.com/Unknwon/goconfig"
 	log "github.com/cihub/seelog"
