@@ -3,10 +3,12 @@ package main
 import (
 	"AuthService/handle"
 	"AuthService/service"
+	"PugCommon"
 	"fmt"
 	ini "github.com/Unknwon/goconfig"
 	log "github.com/cihub/seelog"
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 var (
@@ -16,6 +18,11 @@ var (
 	LocalAddr string
 	DBAddr    string
 	RedisAddr string
+	EtcdAddr  string
+	EtcdTTL   int64
+
+	ServiceType string
+	GinMode     string
 )
 
 func ServiceInit() {
@@ -41,10 +48,52 @@ func ServiceInit() {
 	LocalAddr = cfg.MustValue("Server", "LocalAddr", "0.0.0.0:9020")
 	DBAddr = cfg.MustValue("Server", "DBAddr", "127.0.0.1:3306")
 	RedisAddr = cfg.MustValue("Server", "RedisAddr", "127.0.0.1:6379")
+	EtcdAddr = cfg.MustValue("Server", "EtcdAddr", "127.0.0.1:2379")
+
+	ServiceType = cfg.MustValue("Server", "ServiceType", "/PugServer/AuthService")
+	GinMode = cfg.MustValue("Server", "GinMode", "release")
+	EtcdTTL = cfg.MustInt64("Server", "EtcdTTL", 20)
+}
+
+func RegisterService() {
+	sername, err := PugCommon.GenServiceName()
+	if err != nil {
+		panic(fmt.Errorf("Gen server name err %v", err))
+	}
+	log.Debugf("register service : %v/%v", ServiceType, sername)
+
+	serinfo := PugCommon.ServiceInfo{
+		ServiceName: sername,
+		ServiceType: ServiceType,
+		ServiceAddr: LocalAddr,
+		Version:     service.ServiceVersion,
+		Load:        0,
+	}
+
+	ser, err := service.NewService(EtcdAddr)
+	if err != nil {
+		panic("gen service error")
+	}
+
+	go func() {
+		for {
+			err := ser.RegisterWithKeep(serinfo, EtcdTTL)
+			if err != nil {
+				log.Errorf("register with keep error")
+			} else {
+				log.Errorf("unregistered")
+			}
+
+			// 尝试重新注册
+			time.Sleep(5 * time.Second)
+			log.Debugf("register again %v", serinfo)
+		}
+	}()
 }
 
 func main() {
 	ServiceInit()
+	RegisterService()
 
 	router := gin.Default()
 

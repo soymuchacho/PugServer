@@ -62,13 +62,13 @@ func (c *EtcdClient) Put(key string, value string, lease_id ...clientv3.LeaseID)
 	if err != nil {
 		switch err {
 		case context.Canceled:
-			log.Error("ctx is canceled by another routine: %v", err)
+			log.Errorf("ctx is canceled by another routine: %v", err)
 		case context.DeadlineExceeded:
-			log.Error("ctx is attached with a deadline is exceeded: %v", err)
+			log.Errorf("ctx is attached with a deadline is exceeded: %v", err)
 		case rpctypes.ErrEmptyKey:
-			log.Error("client-side error: %v", err)
+			log.Errorf("client-side error: %v", err)
 		default:
-			log.Error("bad cluster endpoints, which are not etcd servers: %v", err)
+			log.Errorf("bad cluster endpoints, which are not etcd servers: %v", err)
 		}
 		return err
 	}
@@ -150,12 +150,14 @@ func (c *EtcdClient) PutWithLease(key string, value string, ttl int64) (ch_delet
 		return nil, LeaseInfo{}, err
 	}
 
+	log.Debugf("begin keepalive")
 	keep_ctx, keep_cancel := context.WithCancel(context.Background())
 	ch, kaerr := c.cli.KeepAlive(keep_ctx, resp.ID)
 	if kaerr != nil {
 		return nil, LeaseInfo{}, kaerr
 	}
 
+	log.Debugf("begin put")
 	if err := c.Put(key, value, resp.ID); err != nil {
 		return nil, LeaseInfo{}, err
 	}
